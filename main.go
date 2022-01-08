@@ -1,24 +1,13 @@
 package main
 
 import (
+	"CRUD-Golang-Json-File/entity"
+	"CRUD-Golang-Json-File/handlers"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 )
-
-type Person struct {
-	Absen     int    `json:"absen"`
-	Nama      string `json:"nama"`
-	Alamat    string `json:"alamat"`
-	Pekerjaan string `json:"pekerjaan"`
-	Alasan    string `json:"alasan"`
-}
-type Data struct {
-	Data []Person `json:"data"`
-}
 
 func catch() {
 	if r := recover(); r != nil {
@@ -35,7 +24,7 @@ func main() {
 
 	file, _ := ioutil.ReadFile("persons.json")
 
-	DataLoad := Data{}
+	DataLoad := entity.Data{}
 
 	_ = json.Unmarshal([]byte(file), &DataLoad)
 
@@ -60,200 +49,19 @@ func main() {
 
 }
 
-func menuArgs(datas *Data, menu string, dataInput ...string) {
+func menuArgs(datas *entity.Data, menu string, dataInput ...string) {
 	switch menu {
 	case "getAll":
-		dataPersons, err := getPersons(datas)
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			personDataToString(*dataPersons...)
-		}
+		// handlers.HandlerGetAll(datas)
+		handlers.HandlerGetAll(datas)
 	case "create":
-		handlerCreate(dataInput, menu, datas)
+		handlers.HandlerCreate(dataInput, menu, datas)
 	case "read":
-		handlerFindAbsen(dataInput, datas)
+		handlers.HandlerFindAbsen(dataInput, datas)
 	case "update":
-		handlerUpdate(dataInput, datas)
+		handlers.HandlerUpdate(dataInput, datas)
 	case "delete":
-		handlerDelete(dataInput, datas)
+		handlers.HandlerDelete(dataInput, datas)
 	}
 
-}
-
-func handlerDelete(dataInput []string, datas *Data) {
-	updateInput := argInputToArray(dataInput)
-	i, _ := strconv.Atoi(updateInput["absen"])
-	_, err := deletePerson(datas, i)
-	if err != nil {
-		fmt.Println(err)
-	}
-	file, _ := json.MarshalIndent(datas, "", " ")
-
-	_ = ioutil.WriteFile("persons.json", file, 0644)
-}
-
-func handlerUpdate(dataInput []string, datas *Data) {
-	updateInput := argInputToArray(dataInput)
-	i, _ := strconv.Atoi(updateInput["absen"])
-	findedAbsen, err := findAbsen(datas, i)
-	if err != nil {
-		fmt.Println(err)
-	}
-	if _, ok := updateInput["nama"]; ok {
-		findedAbsen.Nama = updateInput["nama"]
-	}
-	if _, ok := updateInput["alamat"]; ok {
-		findedAbsen.Alamat = updateInput["alamat"]
-	}
-	if _, ok := updateInput["pekerjaan"]; ok {
-		findedAbsen.Pekerjaan = updateInput["pekerjaan"]
-	}
-	if _, ok := updateInput["alasan"]; ok {
-		findedAbsen.Alasan = updateInput["alasan"]
-	}
-	// func updatePerson(datas *Data, absen int, update Person) (*Person, error)
-	updatePerson(datas, i, *findedAbsen)
-	file, _ := json.MarshalIndent(datas, "", " ")
-
-	_ = ioutil.WriteFile("persons.json", file, 0644)
-
-}
-
-func handlerFindAbsen(dataInput []string, datas *Data) {
-
-	absen := argInputToArray(dataInput)
-	i, _ := strconv.Atoi(absen["absen"])
-	findedAbsen, err := findAbsen(datas, i)
-	if err != nil {
-		fmt.Println(err)
-	}
-	personDataToString(*findedAbsen)
-
-}
-
-func handlerCreate(dataInput []string, menu string, datas *Data) {
-
-	var personCreate = Person{}
-	saveLoad := argInputToArray(dataInput)
-
-	if val, ok := saveLoad["nama"]; ok {
-
-		personCreate.Nama = val
-
-	} else {
-
-		personCreate.Nama = "null"
-
-	}
-	if val, ok := saveLoad["alamat"]; ok {
-		personCreate.Alamat = val
-	} else {
-
-		personCreate.Alamat = "null"
-
-	}
-	if val, ok := saveLoad["pekerjaan"]; ok {
-		personCreate.Pekerjaan = val
-	} else {
-
-		personCreate.Pekerjaan = "null"
-
-	}
-	if val, ok := saveLoad["alasan"]; ok {
-		personCreate.Alasan = val
-	} else {
-
-		personCreate.Alasan = "null"
-
-	}
-	maxAbsen := 0
-	for _, v := range datas.Data {
-		if v.Absen > maxAbsen {
-			maxAbsen = v.Absen
-		}
-	}
-	personCreate.Absen = maxAbsen + 1
-	creatPerson(datas, personCreate)
-	file, _ := json.MarshalIndent(datas, "", " ")
-
-	_ = ioutil.WriteFile("persons.json", file, 0644)
-}
-
-func getPersons(datas *Data) (*[]Person, error) {
-	return &datas.Data, nil
-}
-
-func findAbsen(datas *Data, index int) (*Person, error) {
-
-	for k, v := range datas.Data {
-		if v.Absen == index {
-
-			return &datas.Data[k], nil
-		}
-	}
-	return nil, errors.New("absen not found")
-
-}
-
-func creatPerson(data *Data, person Person) (*Person, error) {
-	data.Data = append(data.Data, person)
-	return &person, nil
-}
-
-func removeIndex(s []Person, index int) []Person {
-	return append(s[:index], s[index+1:]...)
-}
-func deletePerson(datas *Data, absen int) (*Person, error) {
-	for k, v := range datas.Data {
-		if v.Absen == absen {
-			personHadDelete := &datas.Data[k]
-			datas.Data = removeIndex(datas.Data, k)
-			return personHadDelete, nil
-		}
-	}
-	return nil, errors.New("absen not found")
-}
-func updatePerson(datas *Data, absen int, update Person) (*Person, error) {
-	for k, v := range datas.Data {
-		if v.Absen == absen {
-
-			datas.Data[k] = update
-			return &datas.Data[k], nil
-		}
-	}
-	return nil, errors.New("absen not found")
-}
-func argInputToArray(dataInput []string) map[string]string {
-	var saveLoad = make(map[string]string)
-	for _, value := range dataInput {
-		var keyLoad, valueLoad string
-		flag := false
-		for _, v := range value {
-			if string(v) == ":" {
-				flag = true
-				continue
-			}
-			if flag == false {
-				keyLoad += string(v)
-			} else {
-				valueLoad += string(v)
-			}
-		}
-		saveLoad[string(keyLoad)] = string(valueLoad)
-
-	}
-	return saveLoad
-}
-func personDataToString(data ...Person) {
-	fmt.Println("data Person :")
-	for _, v := range data {
-		fmt.Println("###########")
-		fmt.Printf("Absen: %d \n", v.Absen)
-		fmt.Printf("Nama: %s \n", v.Nama)
-		fmt.Printf("Alamat: %s \n", v.Alamat)
-		fmt.Printf("Pekerjaan: %s \n", v.Pekerjaan)
-		fmt.Printf("Alasan: %s \n", v.Alasan)
-
-	}
 }
