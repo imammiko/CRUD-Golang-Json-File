@@ -117,7 +117,6 @@ func handlerUpdate(dataInput []string, datas *Data) {
 	file, _ := json.MarshalIndent(datas, "", " ")
 
 	_ = ioutil.WriteFile("persons.json", file, 0644)
-	fmt.Println(datas)
 
 }
 
@@ -133,36 +132,15 @@ func handlerFindAbsen(dataInput []string, datas *Data) {
 
 }
 
-func argInputToArray(dataInput []string) map[string]string {
-	var saveLoad = make(map[string]string)
-	for _, value := range dataInput {
-		var keyLoad, valueLoad string
-		flag := false
-		for _, v := range value {
-			if string(v) == ":" {
-				flag = true
-				continue
-			}
-			if flag == false {
-				keyLoad += string(v)
-			} else {
-				valueLoad += string(v)
-			}
-		}
-		saveLoad[string(keyLoad)] = string(valueLoad)
-
-	}
-	return saveLoad
-}
 func handlerCreate(dataInput []string, menu string, datas *Data) {
 
 	var personCreate = Person{}
 	saveLoad := argInputToArray(dataInput)
-	fmt.Println(saveLoad)
+
 	if val, ok := saveLoad["nama"]; ok {
-		//do something here
+
 		personCreate.Nama = val
-		// fmt.Println(val, ok)
+
 	} else {
 
 		personCreate.Nama = "null"
@@ -200,19 +178,6 @@ func handlerCreate(dataInput []string, menu string, datas *Data) {
 	file, _ := json.MarshalIndent(datas, "", " ")
 
 	_ = ioutil.WriteFile("persons.json", file, 0644)
-}
-
-func personDataToString(data ...Person) {
-	fmt.Println("data Person :")
-	for _, v := range data {
-		fmt.Println("###########")
-		fmt.Printf("Absen: %d \n", v.Absen)
-		fmt.Printf("Nama: %s \n", v.Nama)
-		fmt.Printf("Alamat: %s \n", v.Alamat)
-		fmt.Printf("Pekerjaan: %s \n", v.Pekerjaan)
-		fmt.Printf("Alasan: %s \n", v.Alasan)
-
-	}
 }
 
 func getPersons(datas *Data) (*[]Person, error) {
@@ -258,4 +223,37 @@ func updatePerson(datas *Data, absen int, update Person) (*Person, error) {
 		}
 	}
 	return nil, errors.New("absen not found")
+}
+func argInputToArray(dataInput []string) map[string]string {
+	var saveLoad = make(map[string]string)
+	for _, value := range dataInput {
+		var keyLoad, valueLoad string
+		flag := false
+		for _, v := range value {
+			if string(v) == ":" {
+				flag = true
+				continue
+			}
+			if flag == false {
+				keyLoad += string(v)
+			} else {
+				valueLoad += string(v)
+			}
+		}
+		saveLoad[string(keyLoad)] = string(valueLoad)
+
+	}
+	return saveLoad
+}
+func personDataToString(data ...Person) {
+	fmt.Println("data Person :")
+	for _, v := range data {
+		fmt.Println("###########")
+		fmt.Printf("Absen: %d \n", v.Absen)
+		fmt.Printf("Nama: %s \n", v.Nama)
+		fmt.Printf("Alamat: %s \n", v.Alamat)
+		fmt.Printf("Pekerjaan: %s \n", v.Pekerjaan)
+		fmt.Printf("Alasan: %s \n", v.Alasan)
+
+	}
 }
