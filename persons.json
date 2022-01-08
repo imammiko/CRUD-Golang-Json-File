@@ -1,0 +1,32 @@
+{
+ "data": [
+  {
+   "absen": 1,
+   "nama": "Imam Sujatmiko",
+   "alamat": "Alamat",
+   "pekerjaan": "Pekerjaan",
+   "alasan": "pekerjaan"
+  },
+  {
+   "absen": 2,
+   "nama": "imam",
+   "alamat": "kalidonix",
+   "pekerjaan": "programer",
+   "alasan": "alasan"
+  },
+  {
+   "absen": 3,
+   "nama": "joki dian",
+   "alamat": "plaju",
+   "pekerjaan": "service Hp",
+   "alasan": "jadi programmer"
+  },
+  {
+   "absen": 4,
+   "nama": "IMAM",
+   "alamat": "PALEMBANG",
+   "pekerjaan": "PROGRAMER",
+   "alasan": "BIAR AHLI"
+  }
+ ]
+}
